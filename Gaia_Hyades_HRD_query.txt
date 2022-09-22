@@ -1,0 +1,18 @@
+SELECT TOP 100000 phot_g_mean_mag+5*log10(parallax)-10 AS mg, bp_rp FROM gaiadr2.gaia_source
+WHERE 
+CONTAINS(
+	POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec),
+	CIRCLE(
+		'ICRS',
+		COORD1(EPOCH_PROP_POS(67.447,16.948,21.0520,104.9200,-28.0000,39.9600,2000,2016.0)),
+		COORD2(EPOCH_PROP_POS(67.447,16.948,21.0520,104.9200,-28.0000,39.9600,2000,2016.0)),
+		1)
+)=1
+AND parallax_over_error > 10
+AND phot_g_mean_flux_over_error>50
+AND phot_rp_mean_flux_over_error>20
+AND phot_bp_mean_flux_over_error>20
+AND phot_bp_rp_excess_factor < 1.3+0.06*power(phot_bp_mean_mag-phot_rp_mean_mag,2)
+AND phot_bp_rp_excess_factor > 1.0+0.015*power(phot_bp_mean_mag-phot_rp_mean_mag,2)
+AND visibility_periods_used>8
+AND astrometric_chi2_al/(astrometric_n_good_obs_al-5)<1.44*greatest(1,exp(-0.4*(phot_g_mean_mag-19.5)))
